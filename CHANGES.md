@@ -1,9 +1,11 @@
 # Changelog
 
+## v0.0.2
+
+
 ## v0.0.1
 
 - First release.
-
 - **`unstage-ai-prompts`** (`pre-commit` stage)
     Removes any `.prompts/` files from the git index before a commit is created,
     ensuring prompt files never end up in version history regardless of how they

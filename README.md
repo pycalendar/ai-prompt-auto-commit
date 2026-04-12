@@ -61,7 +61,7 @@ This installs all three git hooks (`pre-commit`, `prepare-commit-msg`, `post-com
 ### 3. Set up the repository
 
 ```bash
-pre-commit run prepare-ai-repository
+pre-commit run --hook-stage manual prepare-ai-repository
 ```
 
 This runs the one-time setup (using the `manual` stage) and will:

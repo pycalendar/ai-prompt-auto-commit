@@ -7,3 +7,4 @@ build/
 .pytest_cache/
 
 .prompts
+/ai-prompt-auto-commit-test
