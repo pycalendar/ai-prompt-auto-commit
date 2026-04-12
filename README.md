@@ -29,7 +29,7 @@ claude-sonnet-4-6: rewrite the session middleware to preserve the return URL
 - [git](https://git-scm.com/)
 - [pre-commit](https://pre-commit.com/) (`pip install pre-commit`)
 - [Claude Code](https://claude.ai/code) with the `jq` CLI available
-- Python 3.8+
+- Python 3.10+
 
 ## Installation
 

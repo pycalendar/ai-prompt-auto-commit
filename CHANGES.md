@@ -1,7 +1,12 @@
 # Changelog
 
+## v0.0.3
+
+- Use Python 3.10+
+
 ## v0.0.2
 
+- document how to properly install this package
 
 ## v0.0.1
 
