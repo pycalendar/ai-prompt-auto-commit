@@ -6,21 +6,21 @@ repos:
     hooks:
       - id: unstage-ai-prompts
         name: Unstage AI prompts
-        language: script
-        entry: pre-commit
+        language: python
+        entry: unstage-ai-prompts
         stages: [pre-commit]
         always_run: true
 
       - id: append-ai-prompts
         name: Append AI prompts to commit message
-        language: script
-        entry: prepare-commit-msg
+        language: python
+        entry: append-ai-prompts
         stages: [prepare-commit-msg]
         always_run: true
 
       - id: archive-ai-prompts
         name: Archive AI prompts
-        language: script
-        entry: post-commit
+        language: python
+        entry: archive-ai-prompts
         stages: [post-commit]
         always_run: true

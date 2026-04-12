@@ -1,0 +1,23 @@
+- id: unstage-ai-prompts
+  name: Unstage AI prompts
+  description: Removes any .prompts/ files from the git index before committing.
+  language: python
+  entry: unstage-ai-prompts
+  stages: [pre-commit]
+  always_run: true
+
+- id: append-ai-prompts
+  name: Append AI prompts to commit message
+  description: Appends all pending .prompts/*.md files to the commit message, stripping the repo root from paths.
+  language: python
+  entry: append-ai-prompts
+  stages: [prepare-commit-msg]
+  always_run: true
+
+- id: archive-ai-prompts
+  name: Archive AI prompts
+  description: Moves pending .prompts/*.md files to .prompts/committed/ after a successful commit, tagged with the commit hash.
+  language: python
+  entry: archive-ai-prompts
+  stages: [post-commit]
+  always_run: true

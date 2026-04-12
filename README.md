@@ -16,7 +16,7 @@ Automatically records every AI prompt you send and appends them to your git comm
 
 ### Commit message example
 
-```
+```text
 Fix login redirect bug
 
 AI Prompts:
@@ -29,34 +29,54 @@ claude-sonnet-4-6: rewrite the session middleware to preserve the return URL
 - [git](https://git-scm.com/)
 - [pre-commit](https://pre-commit.com/) (`pip install pre-commit`)
 - [Claude Code](https://claude.ai/code) with the `jq` CLI available
+- Python 3.8+
 
 ## Installation
 
-Run the installer from inside the git repository you want to track:
+### 1. Add to `.pre-commit-config.yaml`
 
-```bash
-bash /path/to/ai-prompt-auto-commit/install.sh
+Add the following to your repository's `.pre-commit-config.yaml` (create it if it doesn't exist):
+
+```yaml
+default_install_hook_types: [pre-commit, prepare-commit-msg, post-commit]
+
+repos:
+  - repo: https://github.com/niccokunzmann/ai-prompt-auto-commit
+    rev: v1.0.0  # replace with the latest tag
+    hooks:
+      - id: unstage-ai-prompts
+      - id: append-ai-prompts
+      - id: archive-ai-prompts
 ```
 
-Then install the pre-commit hooks:
+### 2. Install the hooks
 
 ```bash
 pre-commit install
 ```
 
-The installer will:
+This installs all three git hooks (`pre-commit`, `prepare-commit-msg`, `post-commit`) in one step.
 
-- Install the `pre-commit`, `prepare-commit-msg`, and `post-commit` git hooks
+### 3. Set up Claude Code prompt recording
+
+Run the installer to set up the `.prompts/` directory and copy the Claude Code settings:
+
+```bash
+bash /path/to/ai-prompt-auto-commit/install.sh
+```
+
+This will:
+
 - Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
 - Add `.prompts` to the repository's `.gitignore`
-- Copy `.claude/settings.json` into the repository so Claude Code starts recording prompts immediately (or print merge instructions if one already exists)
+- Copy `.claude/settings.json` so Claude Code starts recording prompts immediately (or print merge instructions if one already exists)
 
 ## Supported AI models
 
 Prompts are recorded for any model Claude Code uses. The model name is taken directly from the Claude Code session and embedded in both the filename and the commit message.
 
 | Model | ID in commit message |
-|---|---|
+| --- | --- |
 | Claude Sonnet 4.6 | `claude-sonnet-4-6` |
 | Claude Opus 4.6 | `claude-opus-4-6` |
 | Claude Haiku 4.5 | `claude-haiku-4-5-20251001` |
@@ -70,7 +90,7 @@ model=$(printf '%s' "$input" | jq -r '.model // "claude-sonnet-4-6"')
 
 ## File layout
 
-```
+```text
 .prompts/
   2026-04-12T20-35-51_claude-sonnet-4-6.md   ← pending (not yet committed)
   committed/
