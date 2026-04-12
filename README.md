@@ -1,7 +1,7 @@
 # ai-prompt-auto-commit
 
+[![Tests](https://github.com/pycalendar/ai-prompt-auto-commit/actions/workflows/test.yml/badge.svg)](https://github.com/pycalendar/ai-prompt-auto-commit/actions/workflows/test.yml)
 ![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)
-![Shell](https://img.shields.io/badge/shell-bash-green.svg)
 ![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)
 
