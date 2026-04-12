@@ -1,0 +1,88 @@
+# ai-prompt-auto-commit
+
+![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)
+![Shell](https://img.shields.io/badge/shell-bash-green.svg)
+![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blueviolet)
+
+Automatically records every AI prompt you send and appends them to your git commit messages — so your commit history always reflects the AI assistance that shaped the code.
+
+## How it works
+
+1. **Claude Code** saves every prompt to `.prompts/` as a timestamped Markdown file (via a `UserPromptSubmit` hook in `.claude/settings.json`).
+2. On `git commit`, the **`prepare-commit-msg`** hook reads all pending prompts and appends them to the commit message under an `AI Prompts:` section.
+3. The **`pre-commit`** hook ensures prompt files are never accidentally committed to the repository.
+4. After the commit, the **`post-commit`** hook moves the used prompts to `.prompts/committed/`, tagged with the commit hash, so they are archived but not reused.
+
+### Commit message example
+
+```
+Fix login redirect bug
+
+AI Prompts:
+claude-sonnet-4-6: why does the redirect fail after OAuth callback?
+claude-sonnet-4-6: rewrite the session middleware to preserve the return URL
+```
+
+## Requirements
+
+- [git](https://git-scm.com/)
+- [pre-commit](https://pre-commit.com/) (`pip install pre-commit`)
+- [Claude Code](https://claude.ai/code) with the `jq` CLI available
+
+## Installation
+
+Run the installer from inside the git repository you want to track:
+
+```bash
+bash /path/to/ai-prompt-auto-commit/install.sh
+```
+
+Then install the pre-commit hooks:
+
+```bash
+pre-commit install
+```
+
+The installer will:
+
+- Install the `pre-commit`, `prepare-commit-msg`, and `post-commit` git hooks
+- Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
+- Add `.prompts` to the repository's `.gitignore`
+- Copy `.claude/settings.json` into the repository so Claude Code starts recording prompts immediately (or print merge instructions if one already exists)
+
+## Supported AI models
+
+Prompts are recorded for any model Claude Code uses. The model name is taken directly from the Claude Code session and embedded in both the filename and the commit message.
+
+| Model | ID in commit message |
+|---|---|
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+| Claude Opus 4.6 | `claude-opus-4-6` |
+| Claude Haiku 4.5 | `claude-haiku-4-5-20251001` |
+| Any future Claude model | recorded automatically |
+
+The recording hook reads the model field from the Claude Code event payload, so new models are supported without any changes:
+
+```bash
+model=$(printf '%s' "$input" | jq -r '.model // "claude-sonnet-4-6"')
+```
+
+## File layout
+
+```
+.prompts/
+  2026-04-12T20-35-51_claude-sonnet-4-6.md   ← pending (not yet committed)
+  committed/
+    2026-04-12T20-10-00_claude-sonnet-4-6_a2e1ca7....md  ← archived after commit
+```
+
+## Uninstall
+
+Remove the installed hooks from `.git/hooks/`:
+
+```bash
+rm .git/hooks/pre-commit .git/hooks/prepare-commit-msg .git/hooks/post-commit
+```
+
+And remove `.claude/settings.json` if it was added by this tool.

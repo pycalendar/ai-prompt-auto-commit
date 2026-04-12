@@ -19,8 +19,8 @@ fi
   while IFS= read -r filepath; do
     filename=$(basename "$filepath" .md)
     model="${filename#*_}"
-    # Join multiple lines into one
-    content=$(tr '\n' ' ' < "$filepath" | sed 's/[[:space:]]*$//')
+    # Join multiple lines into one and strip repo root from any paths
+    content=$(tr '\n' ' ' < "$filepath" | sed "s|$REPO_ROOT/|./|g" | sed 's/[[:space:]]*$//')
     printf '%s: %s\n' "$model" "$content"
   done <<< "$pending_prompts"
 } >> "$COMMIT_MSG_FILE"
