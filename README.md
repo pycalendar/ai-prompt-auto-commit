@@ -24,6 +24,8 @@ claude-sonnet-4-6: why does the redirect fail after OAuth callback?
 claude-sonnet-4-6: rewrite the session middleware to preserve the return URL
 ```
 
+[Example Commit](https://github.com/pycalendar/ai-prompt-auto-commit-test/commit/a806094cdd05d612be62cab4302d87c58243b977)
+
 ## Requirements
 
 - [git](https://git-scm.com/)
@@ -69,6 +71,14 @@ This runs the one-time setup (using the `manual` stage) and will:
 - Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
 - Add `.prompts` to the repository's `.gitignore`
 - Install the Claude Code `UserPromptSubmit` hook into `.claude/settings.json` so prompts are recorded automatically (merges safely with existing settings)
+
+## Contributing prompt recording for another AI
+
+If you are using a different AI coding assistant, or want to set up prompt recording manually, ask your AI model to add the following configuration.
+
+> Please hook to your settings that saves every prompt I send as a Markdown file in `.prompts/`. The filename should be the current timestamp in the format `YYYY-MM-DDTHH-MM-SS` followed by the model name, e.g. `.prompts/2026-01-01T10-00-00_claude-sonnet-4-6.md`.
+
+We welcome your contribution!
 
 ## Supported AI models
 
