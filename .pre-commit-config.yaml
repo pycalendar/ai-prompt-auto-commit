@@ -4,6 +4,13 @@ repos:
 
   - repo: local
     hooks:
+      - id: prepare-ai-repository
+        name: Prepare repository for AI prompt recording
+        language: python
+        entry: prepare-ai-repository
+        stages: [manual]
+        always_run: true
+
       - id: unstage-ai-prompts
         name: Unstage AI prompts
         language: python

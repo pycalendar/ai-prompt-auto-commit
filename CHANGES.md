@@ -1,0 +1,20 @@
+# Changelog
+
+## v0.0.1
+
+- First release.
+
+- **`unstage-ai-prompts`** (`pre-commit` stage)
+    Removes any `.prompts/` files from the git index before a commit is created,
+    ensuring prompt files never end up in version history regardless of how they
+    were staged.
+- **`append-ai-prompts`** (`prepare-commit-msg` stage)
+    Reads every pending `.prompts/*.md` file (sorted chronologically by filename),
+    joins multi-line prompts into a single line, strips the repository root from
+    embedded paths, and appends the results to the commit message under an
+    `AI Prompts:` section in the format `<model>: <prompt>`.
+- **`archive-ai-prompts`** (`post-commit` stage)
+    After a successful commit, moves all pending prompt files from `.prompts/` to
+    `.prompts/committed/`, renaming each to include the commit hash. If a commit
+    is aborted the prompts remain in `.prompts/` and are picked up by the next
+    commit.

@@ -44,6 +44,7 @@ repos:
   - repo: https://github.com/niccokunzmann/ai-prompt-auto-commit
     rev: v1.0.0  # replace with the latest tag
     hooks:
+      - id: prepare-ai-repository
       - id: unstage-ai-prompts
       - id: append-ai-prompts
       - id: archive-ai-prompts
@@ -57,19 +58,17 @@ pre-commit install
 
 This installs all three git hooks (`pre-commit`, `prepare-commit-msg`, `post-commit`) in one step.
 
-### 3. Set up Claude Code prompt recording
-
-Run the installer to set up the `.prompts/` directory and copy the Claude Code settings:
+### 3. Set up the repository
 
 ```bash
-bash /path/to/ai-prompt-auto-commit/install.sh
+pre-commit run prepare-ai-repository
 ```
 
-This will:
+This runs the one-time setup (using the `manual` stage) and will:
 
 - Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
 - Add `.prompts` to the repository's `.gitignore`
-- Copy `.claude/settings.json` so Claude Code starts recording prompts immediately (or print merge instructions if one already exists)
+- Install the Claude Code `UserPromptSubmit` hook into `.claude/settings.json` so prompts are recorded automatically (merges safely with existing settings)
 
 ## Supported AI models
 
