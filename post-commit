@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# post-commit hook: moves pending AI prompts into .prompts/committed/
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+PROMPTS_DIR="$REPO_ROOT/.prompts"
+COMMITTED_DIR="$PROMPTS_DIR/committed"
+
+pending_prompts=$(find "$PROMPTS_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | sort)
+
+if [ -z "$pending_prompts" ]; then
+  exit 0
+fi
+
+mkdir -p "$COMMITTED_DIR"
+
+commit_hash=$(git rev-parse HEAD)
+
+while IFS= read -r filepath; do
+  filename=$(basename "$filepath" .md)
+  mv "$filepath" "$COMMITTED_DIR/${filename}_${commit_hash}.md"
+done <<< "$pending_prompts"

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook: appends all pending AI prompts to the commit message
+# Reads directly from .prompts/ (not the git index) so prompts are included
+# regardless of whether they are staged.
+
+COMMIT_MSG_FILE="$1"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+PROMPTS_DIR="$REPO_ROOT/.prompts"
+
+# Get pending prompt files sorted by name (filename = date, so sort = chronological)
+pending_prompts=$(find "$PROMPTS_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | sort)
+
+if [ -z "$pending_prompts" ]; then
+  exit 0
+fi
+
+{
+  printf '\nAI Prompts:\n'
+  while IFS= read -r filepath; do
+    filename=$(basename "$filepath" .md)
+    model="${filename#*_}"
+    # Join multiple lines into one
+    content=$(tr '\n' ' ' < "$filepath" | sed 's/[[:space:]]*$//')
+    printf '%s: %s\n' "$model" "$content"
+  done <<< "$pending_prompts"
+} >> "$COMMIT_MSG_FILE"
