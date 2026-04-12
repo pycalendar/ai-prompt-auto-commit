@@ -1,5 +1,7 @@
 # Changelog
 
+<!-- Note: Adding a version here, also edit README.md pre-commit template. -->
+
 ## v0.0.3
 
 - Use Python 3.10+
