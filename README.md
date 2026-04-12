@@ -9,10 +9,9 @@ Automatically records every AI prompt you send and appends them to your git comm
 
 ## How it works
 
-1. **Claude Code** saves every prompt to `.prompts/` as a timestamped Markdown file (via a `UserPromptSubmit` hook in `.claude/settings.json`).
+1. **Claude Code** saves every prompt to `.prompts/` as a timestamped Markdown file (via a `UserPromptSubmit` hook in `.claude/settings.json`). Other models can also be instructed to do so.
 2. On `git commit`, the **`prepare-commit-msg`** hook reads all pending prompts and appends them to the commit message under an `AI Prompts:` section.
-3. The **`pre-commit`** hook ensures prompt files are never accidentally committed to the repository.
-4. After the commit, the **`post-commit`** hook moves the used prompts to `.prompts/committed/`, tagged with the commit hash, so they are archived but not reused.
+3. After the commit, the **`post-commit`** hook moves the used prompts to `.prompts/committed/`, tagged with the commit hash, so they are archived but not reused.
 
 ### Commit message example
 
@@ -30,7 +29,6 @@ claude-sonnet-4-6: rewrite the session middleware to preserve the return URL
 
 - [git](https://git-scm.com/)
 - [pre-commit](https://pre-commit.com/) (`pip install pre-commit`)
-- [Claude Code](https://claude.ai/code) with the `jq` CLI available
 - Python 3.10+
 
 ## Installation
@@ -82,7 +80,7 @@ We welcome your contribution!
 
 ## Supported AI models
 
-Prompts are recorded for any model Claude Code uses. The model name is taken directly from the Claude Code session and embedded in both the filename and the commit message.
+This pre-commit supports the following AI models:
 
 | Model | ID in commit message |
 | --- | --- |
@@ -90,12 +88,7 @@ Prompts are recorded for any model Claude Code uses. The model name is taken dir
 | Claude Opus 4.6 | `claude-opus-4-6` |
 | Claude Haiku 4.5 | `claude-haiku-4-5-20251001` |
 | Any future Claude model | recorded automatically |
-
-The recording hook reads the model field from the Claude Code event payload, so new models are supported without any changes:
-
-```bash
-model=$(printf '%s' "$input" | jq -r '.model // "claude-sonnet-4-6"')
-```
+| GitHub Copilot | prompt recording is not supported |
 
 ## File layout
 
@@ -105,13 +98,3 @@ model=$(printf '%s' "$input" | jq -r '.model // "claude-sonnet-4-6"')
   committed/
     2026-04-12T20-10-00_claude-sonnet-4-6_a2e1ca7....md  ← archived after commit
 ```
-
-## Uninstall
-
-Remove the installed hooks from `.git/hooks/`:
-
-```bash
-rm .git/hooks/pre-commit .git/hooks/prepare-commit-msg .git/hooks/post-commit
-```
-
-And remove `.claude/settings.json` if it was added by this tool.
