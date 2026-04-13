@@ -1,11 +1,65 @@
-#!/bin/bash
+#!/usr/bin/env python3
+"""Release script: ./release <version>  (e.g. ./release 0.0.5)"""
 
-set -e
+import re
+import sys
+from pathlib import Path
 
-if [ -z "$1" ]; then
-    echo "Usage: $0 <version>"
-    exit 1
-fi
+ROOT = Path(__file__).parent
 
-echo "Releasing version $1"
-git tag -a -m "Release $1" v$1
+
+def die(msg: str) -> None:
+    print(f"error: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def replace_in_file(path: Path, pattern: str, replacement: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    new_text, count = re.subn(pattern, replacement, text)
+    if count == 0:
+        die(f"pattern {pattern!r} not found in {path}")
+    path.write_text(new_text, encoding="utf-8")
+    print(f"  {path.relative_to(ROOT)}: {count} replacement(s)")
+
+
+def main() -> None:
+    if len(sys.argv) != 2:
+        die(f"usage: {sys.argv[0]} <version>")
+
+    version = sys.argv[1]
+
+    if version.startswith("v"):
+        die(f"version must not start with 'v', got: {version!r}")
+
+    print(f"releasing {version}")
+
+    # pyproject.toml
+    replace_in_file(
+        ROOT / "pyproject.toml",
+        r'(?m)^version = ".*?"',
+        f'version = "{version}"',
+    )
+
+    # README.md  — rev: v<old>
+    replace_in_file(
+        ROOT / "README.md",
+        r"rev: v[\d.]+",
+        f"rev: v{version}",
+    )
+
+    # CHANGES.md — insert new version heading only if not already present
+    changes = ROOT / "CHANGES.md"
+    text = changes.read_text(encoding="utf-8")
+    if f"## v{version}" not in text:
+        new_section = f"## v{version}\n\n- (fill in)\n\n"
+        new_text = re.sub(r"(## v)", new_section + r"\1", text, count=1)
+        if new_text == text:
+            die("could not find a version heading in CHANGES.md to insert before")
+        changes.write_text(new_text, encoding="utf-8")
+        print(f"  CHANGES.md: inserted v{version} section")
+    else:
+        print(f"  CHANGES.md: v{version} already present, skipping")
+
+
+if __name__ == "__main__":
+    main()
