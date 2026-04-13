@@ -67,7 +67,6 @@ pre-commit run --hook-stage manual prepare-ai-repository
 This runs the one-time setup (using the `manual` stage) and will:
 
 - Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
-- Add `.prompts` to the repository's `.gitignore`
 - Install the Claude Code `UserPromptSubmit` hook into `.claude/settings.json` so prompts are recorded automatically (merges safely with existing settings)
 
 ## Contributing prompt recording for another AI
