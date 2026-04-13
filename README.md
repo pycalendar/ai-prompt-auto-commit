@@ -42,7 +42,7 @@ default_install_hook_types: [pre-commit, prepare-commit-msg, post-commit]
 
 repos:
   - repo: https://github.com/niccokunzmann/ai-prompt-auto-commit
-    rev: v0.0.5  # replace with the latest tag
+    rev: v0.0.5
     hooks:
       - id: prepare-ai-repository
       - id: unstage-ai-prompts
