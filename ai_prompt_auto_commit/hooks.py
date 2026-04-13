@@ -36,16 +36,6 @@ def prepare_repository() -> int:
     else:
         print(f"{prompts_gitignore} already ignores *")
 
-    # Add PROMPTS_DIRECTORY to the repo's .gitignore
-    gitignore = repo_root / ".gitignore"
-    existing_lines = gitignore.read_text(encoding="utf-8").splitlines() if gitignore.exists() else []
-    if PROMPTS_DIRECTORY not in existing_lines:
-        with gitignore.open("a", encoding="utf-8") as fh:
-            fh.write(f"\n{PROMPTS_DIRECTORY}\n")
-        print(f"Added {PROMPTS_DIRECTORY} to {gitignore}")
-    else:
-        print(f"{PROMPTS_DIRECTORY} already in {gitignore}")
-
     # Install the UserPromptSubmit hook into .claude/settings.json
     ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath("claude_settings.json")
     bundled = json.loads(ref.read_text(encoding="utf-8"))

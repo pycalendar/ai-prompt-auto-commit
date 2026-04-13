@@ -32,25 +32,16 @@ def test_prompts_gitignore_not_duplicated(repo: Path) -> None:
 # top-level .gitignore
 # ---------------------------------------------------------------------------
 
-def test_gitignore_entry_added(repo: Path) -> None:
-    assert PROMPTS_DIRECTORY in (repo / ".gitignore").read_text(encoding="utf-8").splitlines()
-
-
-def test_gitignore_entry_not_duplicated(repo: Path) -> None:
-    prepare_repository()  # second run
-    lines = (repo / ".gitignore").read_text(encoding="utf-8").splitlines()
-    assert lines.count(PROMPTS_DIRECTORY) == 1
-
+def test_gitignore_is_not_touched(repo: Path) -> None:
+    assert not (repo / ".gitignore").exists()
 
 def test_gitignore_existing_content_preserved(repo: Path) -> None:
     # Overwrite with pre-existing content and re-run
-    (repo / ".gitignore").write_text("*.pyc\n__pycache__\n", encoding="utf-8")
+    old_content = "*.pyc\n__pycache__\n"
+    (repo / ".gitignore").write_text(old_content, encoding="utf-8")
     prepare_repository()
     content = (repo / ".gitignore").read_text(encoding="utf-8")
-    assert "*.pyc" in content
-    assert "__pycache__" in content
-    assert PROMPTS_DIRECTORY in content
-
+    assert content == old_content
 
 # ---------------------------------------------------------------------------
 # .claude/settings.json

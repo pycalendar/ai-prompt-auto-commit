@@ -2,6 +2,10 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.4
+
+- Do not add `.prompts` to `/.gitignore`. The `.gitignore` in `.prompts` is sufficient.
+
 ## v0.0.3
 
 - Use Python 3.10+
