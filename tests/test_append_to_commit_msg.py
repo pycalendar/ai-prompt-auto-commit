@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_prompt_auto_commit.hooks import PROMPTS_DIRECTORY, append_to_commit_msg
+from ai_prompt_auto_commit.append import append_to_commit_msg
+from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
 
 
 def _write_prompt(repo: Path, filename: str, content: str) -> None:

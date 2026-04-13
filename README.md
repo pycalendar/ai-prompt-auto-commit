@@ -98,3 +98,7 @@ This pre-commit supports the following AI models:
   committed/
     2026-04-12T20-10-00_claude-sonnet-4-6_a2e1ca7....md  ← archived after commit
 ```
+
+## Changelog
+
+You can view the versions in the [change log](CHANGES.md).

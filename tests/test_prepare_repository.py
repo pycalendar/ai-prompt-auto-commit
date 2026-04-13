@@ -5,7 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ai_prompt_auto_commit.hooks import PROMPTS_DIRECTORY, prepare_repository
+from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
+from ai_prompt_auto_commit.prepare_repository import prepare_repository
 
 
 # ---------------------------------------------------------------------------

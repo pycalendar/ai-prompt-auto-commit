@@ -11,10 +11,10 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 
 [project.scripts]
-unstage-ai-prompts      = "ai_prompt_auto_commit.hooks:unstage_main"
-append-ai-prompts       = "ai_prompt_auto_commit.hooks:append_main"
-archive-ai-prompts      = "ai_prompt_auto_commit.hooks:archive_main"
-prepare-ai-repository   = "ai_prompt_auto_commit.hooks:prepare_repository_main"
+unstage-ai-prompts      = "ai_prompt_auto_commit.unstage:main"
+append-ai-prompts       = "ai_prompt_auto_commit.append:main"
+archive-ai-prompts      = "ai_prompt_auto_commit.archive:main"
+prepare-ai-repository   = "ai_prompt_auto_commit.prepare_repository:main"
 
 [tool.setuptools.package-data]
 ai_prompt_auto_commit = ["data/*.json"]
