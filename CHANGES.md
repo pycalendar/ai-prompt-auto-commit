@@ -2,6 +2,11 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.5
+
+- Create release script
+- Update versions in files
+
 ## v0.0.4
 
 - Do not add `.prompts` to `/.gitignore`. The `.gitignore` in `.prompts` is sufficient.

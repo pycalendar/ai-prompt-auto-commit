@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-prompt-auto-commit"
-version = "0.0.2"
+version = "0.0.5"
 description = "Records AI prompts in git commit messages"
 readme = "README.md"
 license = { file = "LICENSE" }

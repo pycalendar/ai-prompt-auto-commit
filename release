@@ -2,6 +2,7 @@
 """Release script: ./release <version>  (e.g. ./release 0.0.5)"""
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -59,6 +60,23 @@ def main() -> None:
         print(f"  CHANGES.md: inserted v{version} section")
     else:
         print(f"  CHANGES.md: v{version} already present, skipping")
+
+    # tag and push only when the working tree is clean
+    status = subprocess.run(
+        ["git", "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=ROOT,
+    )
+    if status.stdout.strip():
+        print("\nworking tree has changes — commit them, then re-run to tag and push")
+    else:
+        tag = f"v{version}"
+        subprocess.run(["git", "tag", "-a", tag, "-m", f"Release {tag}"], check=True, cwd=ROOT)
+        print(f"  tagged {tag}")
+        subprocess.run(["git", "push", "origin", tag], check=True, cwd=ROOT)
+        print(f"  pushed {tag}")
 
 
 if __name__ == "__main__":
