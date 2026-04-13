@@ -74,7 +74,7 @@ This runs the one-time setup (using the `manual` stage) and will:
 
 If you are using a different AI coding assistant, or want to set up prompt recording manually, ask your AI model to add the following configuration.
 
-> Please hook to your settings that saves every prompt I send as a Markdown file in `.prompts/`. The filename should be the current timestamp in the format `YYYY-MM-DDTHH-MM-SS` followed by the model name, e.g. `.prompts/2026-01-01T10-00-00_claude-sonnet-4-6.md`.
+> Please add a hook to your settings that saves every prompt I send as a Markdown file in `.prompts/`. The filename should be the current timestamp in the format `YYYY-MM-DDTHH-MM-SS` followed by the model name, e.g. `.prompts/2026-01-01T10-00-00_claude-sonnet-4-6.md`.
 
 We welcome your contribution!
 
