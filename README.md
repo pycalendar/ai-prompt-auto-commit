@@ -102,3 +102,11 @@ This pre-commit supports the following AI models:
 ## Changelog
 
 You can view the versions in the [change log](CHANGES.md).
+
+## Release new versions
+
+To release a new version:
+
+```sh
+./release 0.0.5
+```

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <version>"
+    exit 1
+fi
+
+echo "Releasing version $1"
+git tag -a -m "Release $1" v$1
