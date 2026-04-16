@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 import json
 from pathlib import Path
 
 from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
-from ai_prompt_auto_commit.prepare_repository import prepare_repository
+from ai_prompt_auto_commit.prepare_repository import get_default_claude_settings, prepare_repository
 
 
 # ---------------------------------------------------------------------------
@@ -17,32 +18,47 @@ def test_prompts_dir_created(repo: Path) -> None:
     assert (repo / PROMPTS_DIRECTORY).is_dir()
 
 
-def test_prompts_gitignore_contains_wildcard(repo: Path) -> None:
-    gitignore = repo / PROMPTS_DIRECTORY / ".gitignore"
-    assert gitignore.exists()
-    assert "*" in gitignore.read_text(encoding="utf-8").splitlines()
-
-
-def test_prompts_gitignore_not_duplicated(repo: Path) -> None:
-    prepare_repository()  # second run — fixture already ran once
-    gitignore = repo / PROMPTS_DIRECTORY / ".gitignore"
-    assert gitignore.read_text(encoding="utf-8").splitlines().count("*") == 1
-
-
 # ---------------------------------------------------------------------------
 # top-level .gitignore
 # ---------------------------------------------------------------------------
 
-def test_gitignore_is_not_touched(repo: Path) -> None:
-    assert not (repo / ".gitignore").exists()
+def test_root_gitignore_contains_prompts_pattern(repo: Path) -> None:
+    gitignore = repo / ".gitignore"
+    assert gitignore.exists()
+    assert f"/{PROMPTS_DIRECTORY}/" in gitignore.read_text(encoding="utf-8").splitlines()
 
-def test_gitignore_existing_content_preserved(repo: Path) -> None:
-    # Overwrite with pre-existing content and re-run
+
+def test_root_gitignore_pattern_not_duplicated(repo: Path) -> None:
+    prepare_repository()  # second run
+    gitignore = repo / ".gitignore"
+    lines = gitignore.read_text(encoding="utf-8").splitlines()
+    assert lines.count(f"/{PROMPTS_DIRECTORY}/") == 1
+
+
+def test_root_gitignore_existing_content_preserved(repo: Path) -> None:
     old_content = "*.pyc\n__pycache__\n"
     (repo / ".gitignore").write_text(old_content, encoding="utf-8")
     prepare_repository()
     content = (repo / ".gitignore").read_text(encoding="utf-8")
-    assert content == old_content
+    assert content.startswith(old_content)
+    assert f"/{PROMPTS_DIRECTORY}/" in content
+
+
+# ---------------------------------------------------------------------------
+# get_default_claude_settings
+# ---------------------------------------------------------------------------
+
+def test_get_default_claude_settings_returns_hook() -> None:
+    settings = get_default_claude_settings()
+    hooks = settings["hooks"]["UserPromptSubmit"][0]["hooks"]
+    assert any(h.get("id") == "ai-prompt-auto-commit" for h in hooks)
+
+
+def test_get_default_claude_settings_version_matches_package() -> None:
+    settings = get_default_claude_settings()
+    hook = settings["hooks"]["UserPromptSubmit"][0]["hooks"][0]
+    expected = importlib.metadata.version("ai-prompt-auto-commit")
+    assert hook["version"] == expected
 
 # ---------------------------------------------------------------------------
 # .claude/settings.json
@@ -96,5 +112,41 @@ def test_claude_settings_hook_not_duplicated(repo: Path) -> None:
     assert _hook_ids(settings).count("ai-prompt-auto-commit") == 1
 
 
+def test_claude_settings_hook_has_version(repo: Path) -> None:
+    dest = repo / ".claude" / "settings.json"
+    settings = json.loads(dest.read_text(encoding="utf-8"))
+    hook = next(
+        h for matcher in settings["hooks"]["UserPromptSubmit"]
+        for h in matcher.get("hooks", [])
+        if h.get("id") == "ai-prompt-auto-commit"
+    )
+    expected = importlib.metadata.version("ai-prompt-auto-commit")
+    assert hook["version"] == expected
+
+
+def test_claude_settings_hook_updated_on_rerun(repo: Path) -> None:
+    dest = repo / ".claude" / "settings.json"
+    # Corrupt the existing hook with stale content
+    settings = json.loads(dest.read_text(encoding="utf-8"))
+    for matcher in settings["hooks"]["UserPromptSubmit"]:
+        for h in matcher.get("hooks", []):
+            if h.get("id") == "ai-prompt-auto-commit":
+                h["version"] = "0.0.0"
+                h["command"] = "stale command"
+                h["extra_stale_key"] = "should be removed"
+    dest.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+    prepare_repository()
+    settings = json.loads(dest.read_text(encoding="utf-8"))
+    hook = next(
+        h for matcher in settings["hooks"]["UserPromptSubmit"]
+        for h in matcher.get("hooks", [])
+        if h.get("id") == "ai-prompt-auto-commit"
+    )
+    expected = get_default_claude_settings()["hooks"]["UserPromptSubmit"][0]["hooks"][0]
+    assert hook == expected
+    assert "extra_stale_key" not in hook
+
+
 def test_prepare_repository_returns_zero(repo: Path) -> None:
     assert prepare_repository() == 0
+    assert repo.is_dir()

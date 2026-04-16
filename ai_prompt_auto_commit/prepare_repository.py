@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 import importlib.resources
 import json
 import sys
@@ -11,17 +12,26 @@ from . import common
 from .common import PROMPTS_DIRECTORY
 
 
-def prepare_repository() -> int:
+def get_default_claude_settings() -> dict:
+    """Return the bundled claude_settings.json with the package version injected into the hook."""
+    ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath("claude_settings.json")
+    settings = json.loads(ref.read_text(encoding="utf-8"))
+    package_version = importlib.metadata.version("ai-prompt-auto-commit")
+    settings["hooks"]["UserPromptSubmit"][0]["hooks"][0]["version"] = package_version
+    return settings
+
+def prepare_repository(
+    prompts_directory:str = PROMPTS_DIRECTORY,) -> int:
     """Set up .prompts/, and .claude/settings.json in the target repo."""
     repo_root = common._repo_root()
 
     # Create PROMPTS_DIRECTORY
-    prompts_dir = repo_root / PROMPTS_DIRECTORY
+    prompts_dir = repo_root / prompts_directory
     prompts_dir.mkdir(parents=True, exist_ok=True)
 
     # Add .prompts/ to the root .gitignore
     root_gitignore = repo_root / ".gitignore"
-    pattern = f"/{PROMPTS_DIRECTORY}/"
+    pattern = f"/{prompts_directory}/"
     existing = root_gitignore.read_text(encoding="utf-8").splitlines() if root_gitignore.exists() else []
     if pattern not in existing:
         with root_gitignore.open("a", encoding="utf-8") as fh:
@@ -31,10 +41,10 @@ def prepare_repository() -> int:
         print(f"{root_gitignore} already contains '{pattern}'")
 
     # Install the UserPromptSubmit hook into .claude/settings.json
-    ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath("claude_settings.json")
-    bundled = json.loads(ref.read_text(encoding="utf-8"))
+    bundled = get_default_claude_settings()
     hook_def = bundled["hooks"]["UserPromptSubmit"][0]["hooks"][0]
     hook_id = hook_def["id"]
+    package_version = hook_def["version"]
 
     claude_dest = repo_root / ".claude"
     dest_file = claude_dest / "settings.json"
@@ -47,17 +57,22 @@ def prepare_repository() -> int:
         for matcher in matchers
         for h in matcher.get("hooks", [])
     )
-
     if already_installed:
-        print(f"Hook '{hook_id}' already present in {dest_file}")
+        for matcher in matchers:
+            hooks_list = matcher.get("hooks", [])
+            for i, h in enumerate(hooks_list):
+                if h.get("id") == hook_id:
+                    hooks_list[i] = hook_def
+        print(f"Updated hook '{hook_id}' to version {package_version} in {dest_file}")
     else:
         if matchers:
             matchers[0].setdefault("hooks", []).append(hook_def)
         else:
             matchers.append({"hooks": [hook_def]})
-        claude_dest.mkdir(parents=True, exist_ok=True)
-        dest_file.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
         print(f"Inserted hook '{hook_id}' into {dest_file}")
+
+    claude_dest.mkdir(parents=True, exist_ok=True)
+    dest_file.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
 
     # Ensure prepare-commit-msg and post-commit hooks are installed.
     # Derive them from the existing pre-commit hook file by swapping --hook-type.

@@ -4,8 +4,11 @@
 
 ## v0.0.6
 
-- Create .prompts if absent
-- `prepare-ai-repository` hook now adds .prompts to the `/.gitignore`
+- Create .prompts if absent in `.clauded/settings.json`
+- `prepare-ai-repository` hook
+  - adds .prompts to the `/.gitignore`
+  - updates the hook `.claude/settings.json`
+  - adds a version to the hook
 
 ## v0.0.5
 
