@@ -3,6 +3,7 @@ name: Tests
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
 
 jobs:
@@ -24,3 +25,20 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+  deploy-github-release:
+    # only deploy on tags, see https://stackoverflow.com/a/58478262/1320237
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+    - test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Create GitHub release from tag
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          body: "To view the changes, please refer to the [Changelog](https://github.com/pycalendar/ai-prompt-auto-commit/blob/main/CHANGES.md)."
+          generateReleaseNotes: false
