@@ -52,6 +52,8 @@ repos:
 
 ### 2. Install the hooks
 
+This needs to be run for every clone:
+
 ```bash
 pre-commit install
 ```
@@ -59,6 +61,8 @@ pre-commit install
 This installs all three git hooks (`pre-commit`, `prepare-commit-msg`, `post-commit`) in one step.
 
 ### 3. Set up the repository
+
+This needs to be run once for each repository:
 
 ```bash
 pre-commit run --hook-stage manual prepare-ai-repository
