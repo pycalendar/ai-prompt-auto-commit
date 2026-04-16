@@ -73,6 +73,15 @@ This runs the one-time setup (using the `manual` stage) and will:
 - Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
 - Install the Claude Code `UserPromptSubmit` hook into `.claude/settings.json` so prompts are recorded automatically (merges safely with existing settings)
 
+## Updating
+
+To update the hooks:
+
+```shell
+pre-commit autoupdate
+pre-commit run --hook-stage manual prepare-ai-repository
+```
+
 ## Contributing prompt recording for another AI
 
 If you are using a different AI coding assistant, or want to set up prompt recording manually, ask your AI model to add the following configuration.
