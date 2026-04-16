@@ -5,6 +5,5 @@ __pycache__/
 dist/
 build/
 .pytest_cache/
-
-.prompts
 /ai-prompt-auto-commit-test
+/.prompts/

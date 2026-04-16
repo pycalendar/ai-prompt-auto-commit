@@ -2,6 +2,11 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.6
+
+- Create .prompts if absent
+- `prepare-ai-repository` hook now adds .prompts to the `/.gitignore`
+
 ## v0.0.5
 
 - Create release script

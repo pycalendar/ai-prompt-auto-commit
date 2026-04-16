@@ -15,17 +15,20 @@ def prepare_repository() -> int:
     """Set up .prompts/, and .claude/settings.json in the target repo."""
     repo_root = common._repo_root()
 
-    # Initialize PROMPTS_DIRECTORY with a .gitignore that ignores everything
+    # Create PROMPTS_DIRECTORY
     prompts_dir = repo_root / PROMPTS_DIRECTORY
     prompts_dir.mkdir(parents=True, exist_ok=True)
-    prompts_gitignore = prompts_dir / ".gitignore"
-    existing_patterns = prompts_gitignore.read_text(encoding="utf-8").splitlines() if prompts_gitignore.exists() else []
-    if "*" not in existing_patterns:
-        with prompts_gitignore.open("a", encoding="utf-8") as fh:
-            fh.write("*\n")
-        print(f"Initialized {prompts_gitignore}")
+
+    # Add .prompts/ to the root .gitignore
+    root_gitignore = repo_root / ".gitignore"
+    pattern = f"/{PROMPTS_DIRECTORY}/"
+    existing = root_gitignore.read_text(encoding="utf-8").splitlines() if root_gitignore.exists() else []
+    if pattern not in existing:
+        with root_gitignore.open("a", encoding="utf-8") as fh:
+            fh.write(f"{pattern}\n")
+        print(f"Added '{pattern}' to {root_gitignore}")
     else:
-        print(f"{prompts_gitignore} already ignores *")
+        print(f"{root_gitignore} already contains '{pattern}'")
 
     # Install the UserPromptSubmit hook into .claude/settings.json
     ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath("claude_settings.json")
