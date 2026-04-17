@@ -42,7 +42,7 @@ default_install_hook_types: [pre-commit, prepare-commit-msg, post-commit]
 
 repos:
   - repo: https://github.com/niccokunzmann/ai-prompt-auto-commit
-    rev: v0.0.6
+    rev: v0.0.7
     hooks:
       - id: prepare-ai-repository
       - id: unstage-ai-prompts
@@ -108,6 +108,20 @@ The recording is done automatically through the hooks.
 Prompt the AI:
 
 > Save all prompts
+
+If you want to record prompts from another chat source, use the helper script installed by the package:
+
+### Other Models
+
+```sh
+record-ai-prompt --prompt "<your prompt>" --model "<model used>"
+```
+
+Or pipe text into it:
+
+```sh
+printf "%s" "<your prompt>" | record-ai-prompt
+```
 
 ## File layout
 

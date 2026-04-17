@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
-from ai_prompt_auto_commit.prepare_repository import get_default_claude_settings, prepare_repository
+from ai_prompt_auto_commit.prepare_repository import get_default_claude_settings, get_default_assistant_guidelines, prepare_repository
 
 
 # ---------------------------------------------------------------------------
@@ -59,6 +59,31 @@ def test_get_default_claude_settings_version_matches_package() -> None:
     hook = settings["hooks"]["UserPromptSubmit"][0]["hooks"][0]
     expected = importlib.metadata.version("ai-prompt-auto-commit")
     assert hook["version"] == expected
+
+
+# ---------------------------------------------------------------------------
+# get_default_assistant_guidelines
+# ---------------------------------------------------------------------------
+
+def test_get_default_assistant_guidelines_includes_header() -> None:
+    content = get_default_assistant_guidelines()
+    expected_header = f"""---
+version: "{importlib.metadata.version("ai-prompt-auto-commit")}"
+---
+
+"""
+    assert content.startswith(expected_header)
+
+
+def test_get_default_assistant_guidelines_only_one_header() -> None:
+    content = get_default_assistant_guidelines()
+    header_start = content.find("---")
+    assert header_start != -1
+    header_end = content.find("---", header_start + 3)
+    assert header_end != -1
+    # There should be no more --- before the content
+    next_header = content.find("---", header_end + 3)
+    assert next_header == -1, "Multiple headers found in assistant guidelines"
 
 # ---------------------------------------------------------------------------
 # .claude/settings.json

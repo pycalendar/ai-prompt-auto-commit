@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-prompt-auto-commit"
-version = "0.0.6"
+version = "0.0.7"
 description = "Records AI prompts in git commit messages"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -15,6 +15,7 @@ unstage-ai-prompts      = "ai_prompt_auto_commit.unstage:main"
 append-ai-prompts       = "ai_prompt_auto_commit.append:main"
 archive-ai-prompts      = "ai_prompt_auto_commit.archive:main"
 prepare-ai-repository   = "ai_prompt_auto_commit.prepare_repository:main"
+record-ai-prompt        = "ai_prompt_auto_commit.interceptor:main"
 
 [tool.setuptools.package-data]
 ai_prompt_auto_commit = ["data/*.json"]

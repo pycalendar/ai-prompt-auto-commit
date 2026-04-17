@@ -2,12 +2,13 @@
 """Release script: ./release <version>  (e.g. ./release 0.0.5)"""
 
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-
+DATA = ROOT / "ai_prompt_auto_commit" / "data"
 
 def die(msg: str) -> None:
     print(f"error: {msg}", file=sys.stderr)
@@ -71,6 +72,11 @@ def main() -> None:
         print(f"  CHANGES.md: inserted v{version} section")
     else:
         print(f"  CHANGES.md: v{version} already present, skipping")
+    
+    # copy data files
+    print("  Updating bundled data files...")
+    shutil.copyfile(ROOT / ".claude" / "settings.json", DATA / "claude_settings.json")
+    shutil.copyfile(ROOT / ".github" / "assistant-guidelines.md", DATA / "assistant-guidelines.md")
 
     # tag and push only when the working tree is clean
     status = subprocess.run(

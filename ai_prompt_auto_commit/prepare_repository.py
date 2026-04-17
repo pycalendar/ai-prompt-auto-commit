@@ -10,6 +10,7 @@ from pathlib import Path
 
 from . import common
 from .common import PROMPTS_DIRECTORY
+import re
 
 PACKAGE_VERSION = importlib.metadata.version("ai-prompt-auto-commit")
 ASSISTANT_GUIDELINES_HEADER = f"""---
@@ -32,7 +33,9 @@ def get_default_claude_settings() -> dict:
 
 def get_default_assistant_guidelines() -> str:
     """Return the bundled assistant-guidelines.md content with the package version header."""
-    return ASSISTANT_GUIDELINES_HEADER + get_data("assistant-guidelines.md")
+    content = get_data("assistant-guidelines.md")
+    content = re.sub(r"(?m)^---\n(:?[^-]|[^\n]-)*\n---\n", "", content)
+    return ASSISTANT_GUIDELINES_HEADER + content
 
 def prepare_repository(
     prompts_directory:str = PROMPTS_DIRECTORY,) -> int:
