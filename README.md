@@ -97,7 +97,17 @@ This pre-commit supports the following AI models:
 | Claude Opus 4.6 | `claude-opus-4-6` |
 | Claude Haiku 4.5 | `claude-haiku-4-5-20251001` |
 | Any future Claude model | recorded automatically |
-| GitHub Copilot | prompt recording is not supported |
+| GitHub Copilot | manual prompt recording |
+
+### Claude
+
+The recording is done automatically through the hooks.
+
+### GitHub Copilot
+
+Prompt the AI:
+
+> Save all prompts
 
 ## File layout
 

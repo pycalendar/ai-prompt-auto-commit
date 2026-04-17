@@ -2,6 +2,13 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.7
+
+- Create support for GitHub Copilot
+- `prepare-ai-repository` now creates or updates `.github/assistant-guidelines.md`
+  - copies bundled assistant-guidelines content into the repo
+  - adds a header with the current package version
+
 ## v0.0.6
 
 - Create .prompts if absent in `.clauded/settings.json`

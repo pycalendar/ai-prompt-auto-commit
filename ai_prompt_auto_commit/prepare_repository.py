@@ -11,14 +11,28 @@ from pathlib import Path
 from . import common
 from .common import PROMPTS_DIRECTORY
 
+PACKAGE_VERSION = importlib.metadata.version("ai-prompt-auto-commit")
+ASSISTANT_GUIDELINES_HEADER = f"""---
+version: "{PACKAGE_VERSION}"
+---
+
+"""
+
+def get_data(file_name: str) -> str:
+    """Return the contents of a bundled data file."""
+    ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath(file_name)
+    return ref.read_text(encoding="utf-8")
 
 def get_default_claude_settings() -> dict:
     """Return the bundled claude_settings.json with the package version injected into the hook."""
-    ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath("claude_settings.json")
-    settings = json.loads(ref.read_text(encoding="utf-8"))
-    package_version = importlib.metadata.version("ai-prompt-auto-commit")
-    settings["hooks"]["UserPromptSubmit"][0]["hooks"][0]["version"] = package_version
+    ref = get_data("claude_settings.json")
+    settings = json.loads(ref)
+    settings["hooks"]["UserPromptSubmit"][0]["hooks"][0]["version"] = PACKAGE_VERSION
     return settings
+
+def get_default_assistant_guidelines() -> str:
+    """Return the bundled assistant-guidelines.md content with the package version header."""
+    return ASSISTANT_GUIDELINES_HEADER + get_data("assistant-guidelines.md")
 
 def prepare_repository(
     prompts_directory:str = PROMPTS_DIRECTORY,) -> int:
@@ -28,6 +42,13 @@ def prepare_repository(
     # Create PROMPTS_DIRECTORY
     prompts_dir = repo_root / prompts_directory
     prompts_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create or update .github/assistant-guidelines.md with the current package version header
+    github_dir = repo_root / ".github"
+    github_dir.mkdir(parents=True, exist_ok=True)
+    guidelines_file = github_dir / "assistant-guidelines.md"
+    guidelines_file.write_text(get_default_assistant_guidelines(), encoding="utf-8")
+    print(f"Created or updated {guidelines_file}")
 
     # Add .prompts/ to the root .gitignore
     root_gitignore = repo_root / ".gitignore"
