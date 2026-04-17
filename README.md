@@ -107,11 +107,11 @@ The recording is done automatically through the hooks.
 
 Prompt the AI:
 
-> Save all prompts
+> Save all prompts according to the [assistant guidelines](.github/assistant-guidelines.md)
 
-If you want to record prompts from another chat source, use the helper script installed by the package:
+### Scripts
 
-### Other Models
+You can record prompts manually or instruct the AI to use the script.
 
 ```sh
 record-ai-prompt --prompt "<your prompt>" --model "<model used>"
