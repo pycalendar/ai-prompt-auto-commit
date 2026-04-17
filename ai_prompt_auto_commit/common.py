@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 
 PROMPTS_DIRECTORY = ".prompts"
+COMMITTED_DIRECTORY = f"{PROMPTS_DIRECTORY}/committed"
 
 
 def _repo_root() -> Path:

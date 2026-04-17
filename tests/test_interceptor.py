@@ -11,20 +11,7 @@ from ai_prompt_auto_commit.interceptor import (
     _model_from_filename,
     get_last_used_model,
     main,
-    PROMPTS_DIR,
 )
-
-
-@pytest.fixture()
-def prompts_dir(repo: Path) -> Path:
-    return repo / PROMPTS_DIR
-
-
-@pytest.fixture()
-def committed_dir(prompts_dir: Path) -> Path:
-    d = prompts_dir / "committed"
-    d.mkdir(exist_ok=True)
-    return d
 
 
 @pytest.fixture()

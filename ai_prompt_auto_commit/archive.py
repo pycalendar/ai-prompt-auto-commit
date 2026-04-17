@@ -6,16 +6,15 @@ import subprocess
 import sys
 
 from . import common
-from .common import PROMPTS_DIRECTORY
+from .common import COMMITTED_DIRECTORY, get_prompt_files
 
 
 def archive() -> int:
     """Move pending prompts to .prompts/committed/<name>_<hash>.md."""
     repo_root = common._repo_root()
-    prompts_dir = repo_root / PROMPTS_DIRECTORY
-    committed_dir = prompts_dir / "committed"
+    committed_dir = repo_root / COMMITTED_DIRECTORY
 
-    pending = sorted(prompts_dir.glob("*.md"))
+    pending = get_prompt_files()
     if not pending:
         return 0
 
@@ -25,7 +24,7 @@ def archive() -> int:
     committed_dir.mkdir(parents=True, exist_ok=True)
 
     for filepath in pending:
-        dest = committed_dir / f"{filepath.stem}_{commit_hash}.md"
+        dest = committed_dir / f"{filepath.stem}_{commit_hash}{filepath.suffix}"
         filepath.rename(dest)
     return 0
 
