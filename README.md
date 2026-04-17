@@ -127,9 +127,9 @@ printf "%s" "<your prompt>" | record-ai-prompt
 
 ```text
 .prompts/
-  2026-04-12T20-35-51_claude-sonnet-4-6.md   ← pending (not yet committed)
+  2026-04-12T20-35-51_claude-sonnet-4-6.txt   ← pending (not yet committed)
   committed/
-    2026-04-12T20-10-00_claude-sonnet-4-6_a2e1ca7....md  ← archived after commit
+    2026-04-12T20-10-00_claude-sonnet-4-6_a2e1ca7....txt  ← archived after commit
 ```
 
 ## Changelog
