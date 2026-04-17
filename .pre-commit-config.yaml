@@ -6,28 +6,28 @@ repos:
     hooks:
       - id: prepare-ai-repository
         name: Prepare repository for AI prompt recording
-        language: system
-        entry: prepare-ai-repository
+        language: script
+        entry: .venv/bin/prepare-ai-repository
         stages: [manual]
         always_run: true
 
       - id: unstage-ai-prompts
         name: Unstage AI prompts
-        language: system
-        entry: unstage-ai-prompts
+        language: script
+        entry: .venv/bin/unstage-ai-prompts
         stages: [pre-commit]
         always_run: true
 
       - id: append-ai-prompts
         name: Append AI prompts to commit message
-        language: system
-        entry: append-ai-prompts
+        language: script
+        entry: .venv/bin/append-ai-prompts
         stages: [prepare-commit-msg]
         always_run: true
 
       - id: archive-ai-prompts
         name: Archive AI prompts
-        language: system
-        entry: archive-ai-prompts
+        language: script
+        entry: .venv/bin/archive-ai-prompts
         stages: [post-commit]
         always_run: true
