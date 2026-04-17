@@ -84,10 +84,7 @@ pre-commit run --hook-stage manual prepare-ai-repository
 
 ## Contributing prompt recording for another AI
 
-If you are using a different AI coding assistant, or want to set up prompt recording manually, ask your AI model to add the following configuration.
-
-> Please add a hook to your settings that saves every prompt I send as a Markdown file in `.prompts/`. The filename should be the current timestamp in the format `YYYY-MM-DDTHH-MM-SS` followed by the model name, e.g. `.prompts/2026-01-01T10-00-00_claude-sonnet-4-6.md`.
-
+`.github/assistant-guidelines.md` tells AI models how to record each of your prompts.
 We welcome your contribution!
 
 ## Supported AI models

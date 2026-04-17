@@ -9,12 +9,22 @@ from . import common
 from .common import PROMPTS_DIRECTORY
 
 
+FILE_ENDINGS = [".md", ".txt"]
+
+def get_prompt_files() -> list[Path]:
+    """Return a list of pending prompt files."""
+    repo_root = common._repo_root()
+    prompts_dir = repo_root / PROMPTS_DIRECTORY
+    result= []
+    for ending in FILE_ENDINGS:
+        result.extend(sorted(prompts_dir.glob(f"*{ending}")))
+    return result
+
 def append_to_commit_msg(commit_msg_file: Path) -> int:
     """Append all pending .prompts/*.md files to the commit message."""
     repo_root = common._repo_root()
-    prompts_dir = repo_root / PROMPTS_DIRECTORY
 
-    pending = sorted(prompts_dir.glob("*.md"))
+    pending = get_prompt_files()
     if not pending:
         return 0
 
