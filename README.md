@@ -103,6 +103,15 @@ This pre-commit supports the following AI models:
 
 The recording is done automatically through the hooks.
 
+#### Trouble Shooting
+
+If no files are created in `.promts`:
+
+- Restart the editor or session.
+- Or open /hooks in Claude Code (the UI menu) to reload config.
+
+After that, the hook will fire on every prompt.
+
 ### GitHub Copilot
 
 Prompt the AI:
