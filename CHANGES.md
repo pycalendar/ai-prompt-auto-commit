@@ -8,6 +8,12 @@
 - `prepare-ai-repository` now creates or updates `.github/assistant-guidelines.md`
   - copies bundled assistant-guidelines content into the repo
   - adds a header with the current package version
+- Add `record-ai-prompt` script — saves a prompt to `.prompts/` from the command line or stdin
+  - `--model` defaults to the last used model inferred from existing prompt filenames
+  - raises an error if no prior prompt files exist and no `--model` is given
+- `archive-ai-prompts` now archives both `*.txt` and `*.md` prompt files (previously only `*.md`)
+- Development: add `Makefile` (`make dev`, `make test`, `make clean`) and `CONTRIBUTING.md`
+- Development: fix pre-commit hooks to use `.venv/bin/` scripts via `language: script`
 
 ## v0.0.6
 
