@@ -1,6 +1,7 @@
 ---
-version: "0.0.6"
+version: "0.0.7"
 ---
+
 
 # Assistant Guidelines for `.prompts` Storage
 
@@ -13,7 +14,7 @@ These guidelines tell the assistant exactly how to write prompt files in this re
 - When a user prompt is received, automatically create a new file in `.prompts/`.
 - File names must follow the pattern:
   `YYYY-MM-DDTHH-MM-SS-XXX_raptor-mini-preview.txt`
-  - `_` is important.
+  - `_` and `T` are important.
   - `XXX` is a zero-padded sequence number.
   - `YYYY-MM-DD` is the current date.
   - `HH-MM-SS` is the current time.
@@ -41,5 +42,5 @@ These guidelines tell the assistant exactly how to write prompt files in this re
   - Check that prompts that are in the `.prompts/` directory are not duplicates.
   - Create a new file for each prompt that was prompted to you by the user in this session if it does not already exist.
   - Follow all above guidelines.
-- Saying "Store all prompts" or "Store new prompts" means this:
+- Saying "Store all prompts" or "Store new prompts" or "dump prompts" or "save prompts" means this:
   > Read the last stored prompt that you stored and from that prompt onward, for this chat, create a new prompt file according to the assistant guidelines for each prompt that I have written since.

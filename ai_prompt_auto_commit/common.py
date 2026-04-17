@@ -14,3 +14,15 @@ def _repo_root() -> Path:
             ["git", "rev-parse", "--show-toplevel"], text=True
         ).strip()
     )
+
+FILE_ENDINGS = [".md", ".txt"]
+
+def get_prompt_files() -> list[Path]:
+    """Return a list of pending prompt files."""
+    repo_root = _repo_root()
+    prompts_dir = repo_root / PROMPTS_DIRECTORY
+    result= []
+    for ending in FILE_ENDINGS:
+        result.extend(sorted(prompts_dir.glob(f"*{ending}")))
+    return result
+
