@@ -2,6 +2,10 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.8
+
+- Fix: Include all files in the `data` directory of the package.
+
 ## v0.0.7
 
 - Create support for GitHub Copilot
