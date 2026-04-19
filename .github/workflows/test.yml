@@ -21,10 +21,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install package and test dependencies
-        run: pip install -e ".[dev]" pytest
+        run: make dev
 
       - name: Run tests
-        run: pytest
+        run: make test
 
   deploy-github-release:
     # only deploy on tags, see https://stackoverflow.com/a/58478262/1320237

@@ -1,8 +1,7 @@
 .venv/.installed: pyproject.toml
 	python3 -m venv .venv
 	.venv/bin/pip install --quiet --upgrade pip
-	.venv/bin/pip install --quiet -e .
-	.venv/bin/pip install --quiet pre-commit pytest
+	.venv/bin/pip install --quiet -e .[dev]
 	touch .venv/.installed
 
 .PHONY: dev
@@ -12,7 +11,7 @@ dev: .venv/.installed
 
 .PHONY: test
 test: .venv/.installed
-	.venv/bin/pytest
+	.venv/bin/tox -e py
 
 .PHONY: clean
 clean:

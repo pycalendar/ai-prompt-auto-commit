@@ -17,5 +17,12 @@ archive-ai-prompts      = "ai_prompt_auto_commit.archive:main"
 prepare-ai-repository   = "ai_prompt_auto_commit.prepare_repository:main"
 record-ai-prompt        = "ai_prompt_auto_commit.interceptor:main"
 
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "tox",
+    "pytest",
+]
+
 [tool.setuptools.package-data]
 ai_prompt_auto_commit = ["data/*"]
