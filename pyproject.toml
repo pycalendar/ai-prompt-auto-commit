@@ -18,4 +18,4 @@ prepare-ai-repository   = "ai_prompt_auto_commit.prepare_repository:main"
 record-ai-prompt        = "ai_prompt_auto_commit.interceptor:main"
 
 [tool.setuptools.package-data]
-ai_prompt_auto_commit = ["data/*.json"]
+ai_prompt_auto_commit = ["data/*"]
