@@ -20,8 +20,6 @@ They can:
 
 Maintainers need access to:
 
-- readthedocs (invite collaborator)
-- pypi (invite maintainer)
 - github (invite admin)
 
 ## Contributions
