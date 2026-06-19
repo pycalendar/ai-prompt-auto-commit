@@ -41,7 +41,7 @@ Add the following to your repository's `.pre-commit-config.yaml` (create it if i
 default_install_hook_types: [pre-commit, prepare-commit-msg, post-commit]
 
 repos:
-  - repo: https://github.com/niccokunzmann/ai-prompt-auto-commit
+  - repo: https://github.com/pycalendar/ai-prompt-auto-commit
     rev: v0.0.8
     hooks:
       - id: prepare-ai-repository
