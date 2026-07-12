@@ -5,9 +5,10 @@
 ## v0.0.9
 
 - fix: ensure newline before automatically added gitignore entry
+- fix: spelling in assistant guidelines
 - dev: use `tox` for testing.
 - dev: format code
-- fix: spelling in assistant guidelines
+- dev: update release process
 
 ## v0.0.8
 

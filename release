@@ -9,6 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "ai_prompt_auto_commit" / "data"
+CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
+ASSISTANT_GUIDELINES = ROOT / ".github" / "assistant-guidelines.md"
 
 def die(msg: str) -> None:
     print(f"error: {msg}", file=sys.stderr)
@@ -60,6 +62,20 @@ def main() -> None:
         f"rev: v{version}",
     )
 
+    # data files
+    # claude_settings.json - "version": "0.0.8"
+    replace_in_file(
+        CLAUDE_SETTINGS,
+        r'"version"\s*:\s*"[\d.]+"',
+        f"\"version\": \"{version}\"",
+    )
+    # assistant-guidelines.md - version: "0.0.8"
+    replace_in_file(
+        ASSISTANT_GUIDELINES,
+        r"version: \"[\d.]+\"",
+        f"version: \"{version}\"",
+    )
+
     # CHANGES.md — insert new version heading only if not already present
     changes = ROOT / "CHANGES.md"
     text = changes.read_text(encoding="utf-8")
@@ -72,11 +88,11 @@ def main() -> None:
         print(f"  CHANGES.md: inserted v{version} section")
     else:
         print(f"  CHANGES.md: v{version} already present, skipping")
-    
+
     # copy data files
     print("  Updating bundled data files...")
-    shutil.copyfile(ROOT / ".claude" / "settings.json", DATA / "claude_settings.json")
-    shutil.copyfile(ROOT / ".github" / "assistant-guidelines.md", DATA / "assistant-guidelines.md")
+    shutil.copyfile(CLAUDE_SETTINGS, DATA / "claude_settings.json")
+    shutil.copyfile(ASSISTANT_GUIDELINES, DATA / "assistant-guidelines.md")
 
     # tag and push only when the working tree is clean
     status = subprocess.run(

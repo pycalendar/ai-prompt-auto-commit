@@ -1,6 +1,7 @@
 ---
-version: "0.0.7"
+version: "0.0.9"
 ---
+
 
 
 # Assistant Guidelines for `.prompts` Storage
@@ -33,7 +34,7 @@ These guidelines tell the assistant exactly how to write prompt files in this re
 - For a fresh clone, use this file as the canonical instruction source.
 - If the user asks to store new prompts, then assure there is one file for each and all of the uncommitted prompts of that session.
   - Read the latest prompt file and find the prompts in your memory. Then store all prompts that came after this.
-    - Use this commands to find the latest prompt file:
+    - Use the following command to find the latest prompt file:
 
       ```shell
       (find .prompts -maxdepth 1 -type f -printf '%f\n'; find .prompts/committed/ -maxdepth 1 -type f -printf '%f\n' ) | sort
