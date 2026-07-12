@@ -4,7 +4,10 @@
 
 ## v0.0.9
 
-- Use `tox` for testing.
+- fix: ensure newline before automatically added gitignore entry
+- dev: use `tox` for testing.
+- dev: format code
+- fix: spelling in assistant guidelines
 
 ## v0.0.8
 
