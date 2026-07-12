@@ -44,6 +44,14 @@ def test_root_gitignore_existing_content_preserved(repo: Path) -> None:
     assert f"/{PROMPTS_DIRECTORY}/" in content
 
 
+def test_root_gitignore_newline_added_when_missing(repo: Path) -> None:
+    (repo / ".gitignore").write_text("*.pyc", encoding="utf-8")  # no trailing newline
+    prepare_repository()
+    lines = (repo / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert f"/{PROMPTS_DIRECTORY}/" in lines
+    assert lines[0] == "*.pyc"
+
+
 # ---------------------------------------------------------------------------
 # get_default_claude_settings
 # ---------------------------------------------------------------------------

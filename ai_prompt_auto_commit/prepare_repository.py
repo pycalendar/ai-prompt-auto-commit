@@ -56,9 +56,12 @@ def prepare_repository(
     # Add .prompts/ to the root .gitignore
     root_gitignore = repo_root / ".gitignore"
     pattern = f"/{prompts_directory}/"
-    existing = root_gitignore.read_text(encoding="utf-8").splitlines() if root_gitignore.exists() else []
+    existing_text = root_gitignore.read_text(encoding="utf-8") if root_gitignore.exists() else ""
+    existing = existing_text.splitlines()
     if pattern not in existing:
         with root_gitignore.open("a", encoding="utf-8") as fh:
+            if existing_text and not existing_text.endswith("\n"):
+                fh.write("\n")
             fh.write(f"{pattern}\n")
         print(f"Added '{pattern}' to {root_gitignore}")
     else:
