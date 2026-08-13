@@ -152,3 +152,8 @@ To release a new version:
 ```sh
 ./release 0.0.5
 ```
+
+## Related work
+
+- [cairn](https://github.com/pimalaya/cairn) - Tool-free convention that keeps, beside your code, a living spec of what the system does now plus a dated log of how it got there, readable by any agent, human or AI.
+
