@@ -9,7 +9,7 @@ Automatically records every AI prompt you send and appends them to your git comm
 
 ## How it works
 
-1. **Claude Code** saves every prompt to `.prompts/` as a timestamped Markdown file (via a `UserPromptSubmit` hook in `.claude/settings.json`). Other models can also be instructed to do so.
+1. **Claude Code** saves every prompt to `.prompts/` as a timestamped file, named after the model that answered it (via a `UserPromptSubmit` hook in `.claude/settings.json`, which runs `.claude/hooks/record-prompt.py`). Only prompts you actually wrote are recorded — the turns Claude Code injects on its own, such as background-task notifications, are skipped. Other models can also be instructed to record prompts.
 2. On `git commit`, the **`prepare-commit-msg`** hook reads all pending prompts and appends them to the commit message under an `AI Prompts:` section.
 3. After the commit, the **`post-commit`** hook moves the used prompts to `.prompts/committed/`, tagged with the commit hash, so they are archived but not reused.
 
@@ -71,6 +71,7 @@ pre-commit run --hook-stage manual prepare-ai-repository
 This runs the one-time setup (using the `manual` stage) and will:
 
 - Create a `.prompts/` directory with a `.gitignore` that prevents prompt files from being committed
+- Install the prompt-recording script as `.claude/hooks/record-prompt.py`
 - Install the Claude Code `UserPromptSubmit` hook into `.claude/settings.json` so prompts are recorded automatically (merges safely with existing settings)
 
 ## Updating
@@ -93,19 +94,26 @@ This pre-commit supports the following AI models:
 
 | Model | ID in commit message |
 | --- | --- |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
-| Claude Opus 4.6 | `claude-opus-4-6` |
-| Claude Haiku 4.5 | `claude-haiku-4-5-20251001` |
-| Any future Claude model | recorded automatically |
+| Any Claude model | recorded automatically, e.g. `claude-opus-5` or `claude-sonnet-4-6` |
 | GitHub Copilot | manual prompt recording |
+
+Claude model IDs are taken verbatim from the session transcript, so new models
+need no change here.
 
 ### Claude
 
-The recording is done automatically through the hooks.
+The recording is done automatically through the hooks. The model name is read
+from the session transcript, which records a model only once it has answered.
+The name is therefore the model that answered the previous turn: after a
+`/model` switch, the first prompt you send is still attributed to the model
+you switched away from, and only the ones after that are right. A prompt sent
+before the assistant has answered even once — the first prompt of a session —
+is recorded as `unknown`, because at that point nothing has stated which model
+is answering.
 
 #### Trouble Shooting
 
-If no files are created in `.promts`:
+If no files are created in `.prompts`:
 
 - Restart the editor or session.
 - Or open /hooks in Claude Code (the UI menu) to reload config.
@@ -135,11 +143,18 @@ printf "%s" "<your prompt>" | record-ai-prompt
 ## File layout
 
 ```text
+.claude/
+  settings.json                               ← calls the hook below on each prompt
+  hooks/
+    record-prompt.py                          ← installed by prepare-ai-repository
 .prompts/
   2026-04-12T20-35-51_claude-sonnet-4-6.txt   ← pending (not yet committed)
   committed/
     2026-04-12T20-10-00_claude-sonnet-4-6_a2e1ca7....txt  ← archived after commit
 ```
+
+`.claude/hooks/record-prompt.py` is rewritten every time `prepare-ai-repository`
+runs, so edit the copy in this project rather than the one in your repository.
 
 ## Changelog
 
@@ -156,4 +171,3 @@ To release a new version:
 ## Related work
 
 - [cairn](https://github.com/pimalaya/cairn) - Tool-free convention that keeps, beside your code, a living spec of what the system does now plus a dated log of how it got there, readable by any agent, human or AI.
-

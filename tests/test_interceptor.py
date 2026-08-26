@@ -99,3 +99,12 @@ def test_no_model_uses_last_used(run_main, prompts_dir: Path) -> None:
 def test_no_model_no_prior_files_raises(run_main) -> None:
     with pytest.raises(SystemExit, match="no prompt files found"):
         run_main(["--prompt", "oops"])
+
+
+def test_next_prompt_filename_reads_the_sequence_not_the_minute(prompts_dir: Path) -> None:
+    """The timestamp is full of dashes; the sequence is the last one."""
+    (prompts_dir / "2026-04-17T09-22-17-001_my-model.txt").write_text("a\n")
+    from ai_prompt_auto_commit.interceptor import next_prompt_filename
+
+    nxt = next_prompt_filename(prompts_dir, "2026-04-17T09-22-17", "my-model")
+    assert nxt.name == "2026-04-17T09-22-17-002_my-model.txt"
