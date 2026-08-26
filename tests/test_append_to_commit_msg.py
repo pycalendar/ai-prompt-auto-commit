@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 from ai_prompt_auto_commit.append import append_to_commit_msg
@@ -101,3 +102,15 @@ def test_model_extracted_from_filename(repo: Path) -> None:
     msg = _commit_msg(repo)
     append_to_commit_msg(msg)
     assert "claude-haiku-4-5-20251001: write a test" in msg.read_text(encoding="utf-8")
+
+
+def test_same_second_prompts_are_appended_in_the_order_written(repo: Path) -> None:
+    """Sequence-numbered names sort before the plain one ('-' < '_'), so
+    ordering has to come from when the file was written, not from its name."""
+    _write_prompt(repo, "2026-01-01T10-00-00_claude-opus-5.md", "first")
+    time.sleep(0.01)
+    _write_prompt(repo, "2026-01-01T10-00-00-001_claude-opus-5.md", "second")
+    msg = _commit_msg(repo)
+    append_to_commit_msg(msg)
+    content = msg.read_text(encoding="utf-8")
+    assert content.index("first") < content.index("second")

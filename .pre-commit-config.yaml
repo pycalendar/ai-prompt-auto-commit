@@ -13,6 +13,7 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: name-tests-test
+        args: [--pytest-test-first]  # this project names tests test_*.py
       - id: trailing-whitespace
 
   - repo: local
