@@ -72,7 +72,7 @@ def next_prompt_filename(prompts_dir: Path, timestamp: str, model: str) -> Path:
     numbers: list[int] = []
     for name in existing:
         try:
-            seq = int(name.split("-")[3])
+            seq = int(name.split("_", 1)[0].rsplit("-", 1)[1])
         except (IndexError, ValueError):
             continue
         numbers.append(seq)

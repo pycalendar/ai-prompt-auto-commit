@@ -7,6 +7,10 @@ import importlib.resources
 import json
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from importlib.abc import Traversable
 
 from . import common
 from .common import PROMPTS_DIRECTORY
@@ -19,10 +23,21 @@ version: "{PACKAGE_VERSION}"
 
 """
 
+# The UserPromptSubmit hook script, bundled as package data and installed into
+# the target repository.  It cannot import this package — the console scripts
+# live in pre-commit's isolated cache venv, which is not on the assistant's
+# PATH — so a self-contained copy is placed where the hook can reach it.
+HOOK_SCRIPT_DATA = "record_prompt.py"
+HOOK_SCRIPT_FILENAME = "record-prompt.py"
+HOOK_VERSION_PATTERN = r'(?m)^HOOK_VERSION = ".*"'
+
+def get_data_path(file_name: str) -> "Traversable":
+    """Return the path of a bundled data file."""
+    return importlib.resources.files("ai_prompt_auto_commit.data").joinpath(file_name)
+
 def get_data(file_name: str) -> str:
     """Return the contents of a bundled data file."""
-    ref = importlib.resources.files("ai_prompt_auto_commit.data").joinpath(file_name)
-    return ref.read_text(encoding="utf-8")
+    return get_data_path(file_name).read_text(encoding="utf-8")
 
 def get_default_claude_settings() -> dict:
     """Return the bundled claude_settings.json with the package version injected into the hook."""
@@ -31,11 +46,23 @@ def get_default_claude_settings() -> dict:
     settings["hooks"]["UserPromptSubmit"][0]["hooks"][0]["version"] = PACKAGE_VERSION
     return settings
 
+def get_default_hook_script() -> str:
+    """Return the bundled hook script with the package version injected."""
+    content = get_data(HOOK_SCRIPT_DATA)
+    return re.sub(
+        HOOK_VERSION_PATTERN,
+        f'HOOK_VERSION = "{PACKAGE_VERSION}"',
+        content,
+        count=1,
+    )
+
 def get_default_assistant_guidelines() -> str:
     """Return the bundled assistant-guidelines.md content with the package version header."""
     content = get_data("assistant-guidelines.md")
-    content = re.sub(r"(?m)^---\n(:?[^-]|[^\n]-)*\n---\n", "", content)
-    return ASSISTANT_GUIDELINES_HEADER + content
+    content = re.sub(r"(?m)^---\n(?:[^-]|[^\n]-)*\n---\n", "", content)
+    # The header supplies its own blank line; without this the file grows one
+    # more of them on every run.
+    return ASSISTANT_GUIDELINES_HEADER + content.lstrip("\n")
 
 def prepare_repository(
     prompts_directory:str = PROMPTS_DIRECTORY,) -> int:
@@ -75,6 +102,15 @@ def prepare_repository(
 
     claude_dest = repo_root / ".claude"
     dest_file = claude_dest / "settings.json"
+
+    # Install the hook script the settings above point at.  Always rewritten,
+    # so an outdated copy cannot survive an upgrade.
+    hooks_dest = claude_dest / "hooks"
+    hooks_dest.mkdir(parents=True, exist_ok=True)
+    script_file = hooks_dest / HOOK_SCRIPT_FILENAME
+    script_file.write_text(get_default_hook_script(), encoding="utf-8")
+    script_file.chmod(0o755)
+    print(f"Created or updated {script_file}")
 
     settings = json.loads(dest_file.read_text(encoding="utf-8")) if dest_file.exists() else {}
 

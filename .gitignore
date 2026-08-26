@@ -7,3 +7,5 @@ build/
 .pytest_cache/
 /ai-prompt-auto-commit-test
 /.prompts/
+# generated from ai_prompt_auto_commit/data/record_prompt.py by prepare-ai-repository
+/.claude/hooks/

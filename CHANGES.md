@@ -2,6 +2,29 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.10
+
+- fix: the recorded model is now the model that actually answered. Every
+  prompt was recorded as `claude-sonnet-4-6` before, whichever model you
+  were using.
+- fix: only prompts you wrote yourself are recorded. Turns that Claude Code
+  injects on its own, such as background-task notifications, were being
+  written to `.prompts/` and copied into commit messages.
+- fix: `jq` is no longer needed. It was never listed as a requirement, and
+  without it prompt files were silently written empty.
+- fix: two prompts sent within the same second no longer overwrite each
+  other.
+- fix: `prepare-ai-repository` no longer adds a blank line to
+  `.github/assistant-guidelines.md` every time it runs.
+- The Claude Code hook now lives in `.claude/hooks/record-prompt.py`,
+  installed by `prepare-ai-repository`. Re-run it to upgrade.
+- fix: prompts recorded in the same second are now listed in the order you
+  sent them. A numbered file sorted ahead of the one it followed.
+- fix: `record-ai-prompt` took its sequence number from the wrong part of
+  the timestamp, so numbering jumped to whatever the minute happened to be.
+- dev: `name-tests-test` enforces this project's own `test_*.py` naming
+  instead of failing on every test file.
+
 ## v0.0.9
 
 - fix: ensure newline before automatically added gitignore entry

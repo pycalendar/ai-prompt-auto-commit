@@ -2,8 +2,6 @@
 version: "0.0.9"
 ---
 
-
-
 # Assistant Guidelines for `.prompts` Storage
 
 These guidelines tell the assistant exactly how to write prompt files in this repository.

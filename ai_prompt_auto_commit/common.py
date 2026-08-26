@@ -22,8 +22,9 @@ def get_prompt_files() -> list[Path]:
     """Return a list of pending prompt files."""
     repo_root = _repo_root()
     prompts_dir = repo_root / PROMPTS_DIRECTORY
-    result= []
+    result = []
     for ending in FILE_ENDINGS:
-        result.extend(sorted(prompts_dir.glob(f"*{ending}")))
-    return result
-
+        result.extend(prompts_dir.glob(f"*{ending}"))
+    # By write time, not by name: a sequence-numbered "<ts>-001_<model>" sorts
+    # before the plain "<ts>_<model>" it followed, because '-' < '_'.
+    return sorted(result, key=lambda p: (p.stat().st_mtime_ns, p.name))

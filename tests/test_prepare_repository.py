@@ -4,10 +4,17 @@ from __future__ import annotations
 
 import importlib.metadata
 import json
+import os
 from pathlib import Path
 
 from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
-from ai_prompt_auto_commit.prepare_repository import get_default_claude_settings, get_default_assistant_guidelines, prepare_repository
+from ai_prompt_auto_commit.prepare_repository import (
+    HOOK_SCRIPT_FILENAME,
+    get_default_assistant_guidelines,
+    get_default_claude_settings,
+    get_default_hook_script,
+    prepare_repository,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -183,3 +190,66 @@ def test_claude_settings_hook_updated_on_rerun(repo: Path) -> None:
 def test_prepare_repository_returns_zero(repo: Path) -> None:
     assert prepare_repository() == 0
     assert repo.is_dir()
+
+
+# ---------------------------------------------------------------------------
+# .claude/hooks/record-prompt.py
+# ---------------------------------------------------------------------------
+
+def test_hook_script_installed(repo: Path) -> None:
+    script = repo / ".claude" / "hooks" / HOOK_SCRIPT_FILENAME
+    assert script.is_file()
+    assert os.access(script, os.X_OK)
+
+
+def test_hook_script_version_matches_package(repo: Path) -> None:
+    script = repo / ".claude" / "hooks" / HOOK_SCRIPT_FILENAME
+    expected = importlib.metadata.version("ai-prompt-auto-commit")
+    assert f'HOOK_VERSION = "{expected}"' in script.read_text(encoding="utf-8")
+
+
+def test_hook_script_refreshed_on_rerun(repo: Path) -> None:
+    script = repo / ".claude" / "hooks" / HOOK_SCRIPT_FILENAME
+    script.write_text("# stale\n", encoding="utf-8")
+    prepare_repository()
+    assert script.read_text(encoding="utf-8") == get_default_hook_script()
+
+
+def test_hook_command_invokes_the_script(repo: Path) -> None:
+    hook = get_default_claude_settings()["hooks"]["UserPromptSubmit"][0]["hooks"][0]
+    assert HOOK_SCRIPT_FILENAME in hook["command"]
+
+
+def test_hook_command_has_no_hardcoded_model(repo: Path) -> None:
+    """Regression: the model was defaulted to a constant, so every prompt lied."""
+    hook = get_default_claude_settings()["hooks"]["UserPromptSubmit"][0]["hooks"][0]
+    assert "claude-" not in hook["command"]
+
+
+def test_hook_command_does_not_require_jq(repo: Path) -> None:
+    """jq was an undocumented hard dependency; failure was silent."""
+    hook = get_default_claude_settings()["hooks"]["UserPromptSubmit"][0]["hooks"][0]
+    assert "jq" not in hook["command"]
+
+
+def test_get_default_assistant_guidelines_is_idempotent(repo: Path) -> None:
+    """Re-running prepare_repository() must leave the file byte-identical.
+
+    This does not pin the blank-line fix on its own — the generator reads the
+    bundled data file, so it was always stable across two calls. The round
+    trip below is what pins it.
+    """
+    guidelines = repo / ".github" / "assistant-guidelines.md"
+    before = guidelines.read_text(encoding="utf-8")
+    prepare_repository()
+    assert guidelines.read_text(encoding="utf-8") == before
+
+
+def test_assistant_guidelines_survives_the_release_round_trip(monkeypatch) -> None:
+    """`./release` copies the generated .github/ file back over the bundled
+    one, so generating from an already-generated file must be a no-op."""
+    import ai_prompt_auto_commit.prepare_repository as pr
+
+    generated = pr.get_default_assistant_guidelines()
+    monkeypatch.setattr(pr, "get_data", lambda name: generated)
+    assert pr.get_default_assistant_guidelines() == generated
