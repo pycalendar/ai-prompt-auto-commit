@@ -80,6 +80,7 @@ To update the hooks:
 
 ```shell
 pre-commit autoupdate
+git add .
 pre-commit run --hook-stage manual prepare-ai-repository
 ```
 
