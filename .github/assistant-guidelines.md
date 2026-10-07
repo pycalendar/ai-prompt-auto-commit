@@ -19,7 +19,7 @@ These guidelines tell the assistant exactly how to write prompt files in this re
   - `HH-MM-SS` is the current time.
   - `raptor-mini-preview` is the model name.
     Replace this model name with the actual AI model that you use.
-  - Use `date +%Y-%m-%d%H-%M-%S` to get the current date and time.
+  - Use `date +%Y-%m-%dT%H-%M-%S` to get the current date and time.
 - File content must contain only the raw prompt text from the user.
 - Do not add headings, bullets, annotations, or any markup.
 - Do not store assistant responses or metadata inside these files.
