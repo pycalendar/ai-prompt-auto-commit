@@ -2,6 +2,12 @@
 
 <!-- Note: Adding a version here, also edit README.md pre-commit template. -->
 
+## v0.0.11
+
+- fix: `.github/assistant-guidelines.md` names the right `date` command.
+  It left out the `T`, so a model following it wrote prompt files that do
+  not match the documented `YYYY-MM-DDTHH-MM-SS` name.
+
 ## v0.0.10
 
 - fix: the recorded model is now the model that actually answered. Every

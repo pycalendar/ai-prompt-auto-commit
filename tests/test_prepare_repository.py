@@ -5,7 +5,11 @@ from __future__ import annotations
 import importlib.metadata
 import json
 import os
+import re
+from datetime import datetime
 from pathlib import Path
+
+import pytest
 
 from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
 from ai_prompt_auto_commit.prepare_repository import (
@@ -99,6 +103,30 @@ def test_get_default_assistant_guidelines_only_one_header() -> None:
     # There should be no more --- before the content
     next_header = content.find("---", header_end + 3)
     assert next_header == -1, "Multiple headers found in assistant guidelines"
+
+
+@pytest.mark.parametrize(
+    "guidelines",
+    [
+        # ./release copies the .github file over the bundled one
+        Path(__file__).parent.parent / ".github" / "assistant-guidelines.md",
+        "bundled",
+    ],
+)
+def test_assistant_guidelines_date_command_matches_filename_pattern(
+    guidelines: Path | str,
+) -> None:
+    """The guidelines tell other AI models which `date` command produces the
+    timestamp; it has to be the format the hooks write, `T` included."""
+    if guidelines == "bundled":
+        content = get_default_assistant_guidelines()
+    else:
+        content = guidelines.read_text(encoding="utf-8")
+    match = re.search(r"`date \+([^`]+)`", content)
+    assert match, "the guidelines name no date command"
+    timestamp = datetime(2026, 10, 7, 9, 5, 3).strftime(match.group(1))
+    assert timestamp == "2026-10-07T09-05-03"
+
 
 # ---------------------------------------------------------------------------
 # .claude/settings.json
