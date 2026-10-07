@@ -80,9 +80,12 @@ To update the hooks:
 
 ```shell
 pre-commit autoupdate
-git add .
+git add .pre-commit-config.yaml
 pre-commit run --hook-stage manual prepare-ai-repository
 ```
+
+pre-commit refuses to run while `.pre-commit-config.yaml` has unstaged
+changes, hence the `git add` between the two.
 
 ## Contributing prompt recording for another AI
 
