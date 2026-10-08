@@ -31,6 +31,18 @@ HOOK_SCRIPT_DATA = "record_prompt.py"
 HOOK_SCRIPT_FILENAME = "record-prompt.py"
 HOOK_VERSION_PATTERN = r'(?m)^HOOK_VERSION = ".*"'
 
+# Claude Code's per-user settings file.  The hook goes here rather than into
+# the shared .claude/settings.json, which is meant to be committed.
+CLAUDE_SETTINGS_FILE = ".claude/settings.local.json"
+SHARED_CLAUDE_SETTINGS_FILE = ".claude/settings.json"
+
+# Files written by prepare_repository(), added to the target's .gitignore.
+GENERATED_FILES = (
+    f"/{CLAUDE_SETTINGS_FILE}",
+    f"/.claude/hooks/{HOOK_SCRIPT_FILENAME}",
+    "/.github/assistant-guidelines.md",
+)
+
 def get_data_path(file_name: str) -> "Traversable":
     """Return the path of a bundled data file."""
     return importlib.resources.files("ai_prompt_auto_commit.data").joinpath(file_name)
@@ -64,9 +76,53 @@ def get_default_assistant_guidelines() -> str:
     # more of them on every run.
     return ASSISTANT_GUIDELINES_HEADER + content.lstrip("\n")
 
+def _remove_hook_from(settings_file: Path, hook_id: str) -> None:
+    """Remove the hook that versions up to 0.0.10 installed into the shared
+    settings file, so it does not run twice.  Containers left empty are
+    pruned, and so is the file if nothing else remains in it.
+
+    The file belongs to the user, so content of an unexpected shape is left
+    alone with a warning rather than aborting the setup.
+    """
+    if not settings_file.exists():
+        return
+    try:
+        settings = json.loads(settings_file.read_text(encoding="utf-8"))
+        hooks = settings.get("hooks") or {}
+        matchers = hooks.get("UserPromptSubmit") or []
+        found = any(
+            h.get("id") == hook_id for m in matchers for h in m.get("hooks") or []
+        )
+    except (ValueError, AttributeError, TypeError):
+        print(f"Warning: cannot read {settings_file}; leaving it alone.", file=sys.stderr)
+        return
+    if not found:
+        return
+    emptied = []
+    for matcher in matchers:
+        before = matcher.get("hooks") or []
+        if any(h.get("id") == hook_id for h in before):
+            matcher["hooks"] = [h for h in before if h.get("id") != hook_id]
+            if not matcher["hooks"]:
+                emptied.append(matcher)
+    matchers[:] = [m for m in matchers if not any(m is e for e in emptied)]
+    if not matchers:
+        del hooks["UserPromptSubmit"]
+    if not hooks:
+        del settings["hooks"]
+    if settings:
+        settings_file.write_text(
+            json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        print(f"Removed hook '{hook_id}' from {settings_file}")
+    else:
+        settings_file.unlink()
+        print(f"Removed {settings_file}, which held nothing but hook '{hook_id}'")
+
+
 def prepare_repository(
     prompts_directory:str = PROMPTS_DIRECTORY,) -> int:
-    """Set up .prompts/, and .claude/settings.json in the target repo."""
+    """Set up .prompts/, and .claude/settings.local.json in the target repo."""
     repo_root = common._repo_root()
 
     # Create PROMPTS_DIRECTORY
@@ -80,28 +136,29 @@ def prepare_repository(
     guidelines_file.write_text(get_default_assistant_guidelines(), encoding="utf-8")
     print(f"Created or updated {guidelines_file}")
 
-    # Add .prompts/ to the root .gitignore
+    # Keep the prompts and every generated file out of git.  The generated
+    # files are rewritten on each run, so a committed copy only goes stale.
     root_gitignore = repo_root / ".gitignore"
-    pattern = f"/{prompts_directory}/"
-    existing_text = root_gitignore.read_text(encoding="utf-8") if root_gitignore.exists() else ""
-    existing = existing_text.splitlines()
-    if pattern not in existing:
-        with root_gitignore.open("a", encoding="utf-8") as fh:
-            if existing_text and not existing_text.endswith("\n"):
-                fh.write("\n")
-            fh.write(f"{pattern}\n")
-        print(f"Added '{pattern}' to {root_gitignore}")
-    else:
-        print(f"{root_gitignore} already contains '{pattern}'")
+    for pattern in (f"/{prompts_directory}/", *GENERATED_FILES):
+        existing_text = root_gitignore.read_text(encoding="utf-8") if root_gitignore.exists() else ""
+        if pattern not in existing_text.splitlines():
+            with root_gitignore.open("a", encoding="utf-8") as fh:
+                if existing_text and not existing_text.endswith("\n"):
+                    fh.write("\n")
+                fh.write(f"{pattern}\n")
+            print(f"Added '{pattern}' to {root_gitignore}")
+        else:
+            print(f"{root_gitignore} already contains '{pattern}'")
 
-    # Install the UserPromptSubmit hook into .claude/settings.json
+    # Install the UserPromptSubmit hook into the per-user settings file
     bundled = get_default_claude_settings()
     hook_def = bundled["hooks"]["UserPromptSubmit"][0]["hooks"][0]
     hook_id = hook_def["id"]
     package_version = hook_def["version"]
 
     claude_dest = repo_root / ".claude"
-    dest_file = claude_dest / "settings.json"
+    dest_file = repo_root / CLAUDE_SETTINGS_FILE
+    _remove_hook_from(repo_root / SHARED_CLAUDE_SETTINGS_FILE, hook_id)
 
     # Install the hook script the settings above point at.  Always rewritten,
     # so an outdated copy cannot survive an upgrade.
