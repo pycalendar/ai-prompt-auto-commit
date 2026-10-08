@@ -8,7 +8,7 @@
 
 - id: unstage-ai-prompts
   name: Unstage AI prompts
-  description: Removes any .prompts/ files from the git index before committing.
+  description: Removes any .prompts/ files from the git index before committing, and hints at prepare-ai-repository when it has not run.
   language: python
   entry: unstage-ai-prompts
   stages: [pre-commit]

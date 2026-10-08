@@ -76,6 +76,26 @@ def get_default_assistant_guidelines() -> str:
     # more of them on every run.
     return ASSISTANT_GUIDELINES_HEADER + content.lstrip("\n")
 
+def hook_installed(repo_root: Path) -> bool:
+    """Whether the Claude Code hook is in place: the script, and its entry in
+    a settings file (the shared one, until prepare-ai-repository moves it).
+    Either can go missing on its own."""
+    if not (repo_root / ".claude" / "hooks" / HOOK_SCRIPT_FILENAME).exists():
+        return False
+    hook_id = get_default_claude_settings()["hooks"]["UserPromptSubmit"][0]["hooks"][0]["id"]
+    for name in (CLAUDE_SETTINGS_FILE, SHARED_CLAUDE_SETTINGS_FILE):
+        try:
+            settings = json.loads((repo_root / name).read_text(encoding="utf-8"))
+            if any(
+                h.get("id") == hook_id
+                for m in settings["hooks"]["UserPromptSubmit"]
+                for h in m.get("hooks") or []
+            ):
+                return True
+        except (OSError, ValueError, KeyError, AttributeError, TypeError):
+            pass
+    return False
+
 def _remove_hook_from(settings_file: Path, hook_id: str) -> None:
     """Remove the hook that versions up to 0.0.10 installed into the shared
     settings file, so it does not run twice.  Containers left empty are

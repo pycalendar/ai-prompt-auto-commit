@@ -76,6 +76,9 @@ This runs the one-time setup (using the `manual` stage) and will:
 - Add every file it writes to `.gitignore`: they are regenerated on each run, so they should not be committed
 
 Each clone needs this step, a fresh clone records nothing until it is run.
+Until then, every commit made from a terminal prints a hint to run it.
+A clone that does not use Claude Code can switch the hint off with
+`git config ai-prompt-auto-commit.hint false`.
 
 ## Updating
 

@@ -14,6 +14,9 @@
 - The Claude Code hook is installed into `.claude/settings.local.json`
   instead of the shared `.claude/settings.json`, and removed from the
   latter.  See "Upgrading from v0.0.10 or older" in the README.
+- Committing in a clone where `prepare-ai-repository` has not run prints a
+  hint to run it, as Claude Code prompts are not recorded there.
+  `git config ai-prompt-auto-commit.hint false` switches it off.
 
 ## v0.0.10
 
