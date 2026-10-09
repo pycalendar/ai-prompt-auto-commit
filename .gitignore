@@ -9,3 +9,6 @@ build/
 /.prompts/
 # generated from ai_prompt_auto_commit/data/record_prompt.py by prepare-ai-repository
 /.claude/hooks/
+/.claude/settings.local.json
+/.claude/hooks/record-prompt.py
+/.github/assistant-guidelines.md

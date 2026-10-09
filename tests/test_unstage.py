@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import subprocess
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from ai_prompt_auto_commit.common import PROMPTS_DIRECTORY
-from ai_prompt_auto_commit.unstage import unstage
+from ai_prompt_auto_commit.prepare_repository import HOOK_SCRIPT_FILENAME
+from ai_prompt_auto_commit.unstage import hint_missing_hook, unstage
 
 
 def _diff_result(stdout: str) -> MagicMock:
@@ -84,3 +87,61 @@ def test_diff_command_filters_prompts_directory(mock_run: MagicMock) -> None:
     cmd = mock_run.call_args_list[0].args[0]
     assert cmd[:4] == ["git", "diff", "--cached", "--name-only"]
     assert f"{PROMPTS_DIRECTORY}/" in cmd
+
+
+# ---------------------------------------------------------------------------
+# hint when the Claude Code hook script is missing
+# ---------------------------------------------------------------------------
+
+
+def _hint(repo: Path) -> str:
+    tty = repo / "tty"
+    tty.write_text("", encoding="utf-8")
+    hint_missing_hook(repo, tty)
+    return tty.read_text(encoding="utf-8")
+
+
+def test_no_hint_when_prepared(repo: Path) -> None:
+    assert _hint(repo) == ""
+
+
+def test_hint_when_hook_script_missing(repo: Path) -> None:
+    """The generated files are gitignored, so a fresh clone records nothing
+    until prepare-ai-repository has run; say so on every commit."""
+    (repo / ".claude" / "hooks" / HOOK_SCRIPT_FILENAME).unlink()
+    assert "prepare-ai-repository" in _hint(repo)
+
+
+@pytest.mark.parametrize("settings", [None, "{not json", "[]", '{"hooks": {}}'])
+def test_hint_when_hook_missing_from_settings(repo: Path, settings: str | None) -> None:
+    """Pulling the commit that stops tracking .claude/settings.json removes
+    the hook while the ignored script survives."""
+    local = repo / ".claude" / "settings.local.json"
+    if settings is None:
+        local.unlink()
+    else:
+        local.write_text(settings, encoding="utf-8")
+    assert "prepare-ai-repository" in _hint(repo)
+
+
+def test_no_hint_while_hook_still_in_shared_settings(repo: Path) -> None:
+    """A clone not yet re-prepared still records through settings.json."""
+    local = repo / ".claude" / "settings.local.json"
+    local.rename(repo / ".claude" / "settings.json")
+    assert _hint(repo) == ""
+
+
+def test_hint_can_be_switched_off(repo: Path) -> None:
+    """A clone that does not use Claude Code needs a way to silence it."""
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "ai-prompt-auto-commit.hint", "false"],
+        check=True,
+    )
+    (repo / ".claude" / "hooks" / HOOK_SCRIPT_FILENAME).unlink()
+    assert _hint(repo) == ""
+
+
+def test_hint_without_terminal_is_silent(tmp_path: Path) -> None:
+    """IDEs, CI and agents commit without a tty; that must not fail."""
+    hint_missing_hook(tmp_path, tmp_path / "no-such-dir" / "tty")

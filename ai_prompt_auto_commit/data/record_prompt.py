@@ -2,7 +2,7 @@
 """Claude Code `UserPromptSubmit` hook: record one prompt in `.prompts/`.
 
 `prepare-ai-repository` installs a copy of this script into a repository as
-`.claude/hooks/record-prompt.py` and points `.claude/settings.json` at it.
+`.claude/hooks/record-prompt.py` and points `.claude/settings.local.json` at it.
 Edit the original bundled with ai-prompt-auto-commit, not the installed copy:
 the copy is overwritten on every run of `prepare-ai-repository`.
 

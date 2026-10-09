@@ -1,6 +1,6 @@
 - id: prepare-ai-repository
   name: Prepare repository for AI prompt recording
-  description: Creates .prompts/, updates .gitignore, and installs the Claude Code UserPromptSubmit hook into .claude/settings.json.
+  description: Creates .prompts/, updates .gitignore, and installs the Claude Code UserPromptSubmit hook into .claude/settings.local.json.
   language: python
   entry: prepare-ai-repository
   stages: [manual]
@@ -8,7 +8,7 @@
 
 - id: unstage-ai-prompts
   name: Unstage AI prompts
-  description: Removes any .prompts/ files from the git index before committing.
+  description: Removes any .prompts/ files from the git index before committing, and hints at prepare-ai-repository when it has not run.
   language: python
   entry: unstage-ai-prompts
   stages: [pre-commit]
